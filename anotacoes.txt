@@ -1,1 +1,3 @@
 nest new api-smartranking
+nest g module [MÓDULO]
+nest g controller [CONTROLLER]
