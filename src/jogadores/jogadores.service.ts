@@ -10,7 +10,21 @@ export class JogadoresService {
   private jogadores: JogadorInterface[] = [];
 
   criarAtualizarJogador(jogadorDto: CriarJogadorDTO): void {
-    this.criar(jogadorDto);
+    const { email } = jogadorDto;
+
+    const indiceJogadorExistente = this.jogadores.findIndex(
+      (jogador) => jogador.email === email,
+    );
+
+    if (indiceJogadorExistente >= 0) {
+      this.atualizar(jogadorDto, indiceJogadorExistente);
+    } else {
+      this.criar(jogadorDto);
+    }
+  }
+
+  consultarTodosJogadores(): JogadorInterface[] {
+    return this.jogadores;
   }
 
   private criar(criaJogadorDto: CriarJogadorDTO): void {
@@ -29,5 +43,29 @@ export class JogadoresService {
     this.jogadores.push(jogador);
 
     this.logger.log(`jogador: ${JSON.stringify(jogador)}`);
+  }
+
+  private atualizar(criarJogadorDto: CriarJogadorDTO, index: number): void {
+    const {
+      _id,
+      email,
+      telefoneCelular,
+      posicaoRanking,
+      ranking,
+      urlFotoJogador,
+    } = this.jogadores[index];
+
+    ///Só vai atualizar o nome
+    const { nome } = criarJogadorDto;
+
+    this.jogadores[index] = {
+      _id,
+      email,
+      nome,
+      posicaoRanking,
+      ranking,
+      telefoneCelular,
+      urlFotoJogador,
+    };
   }
 }
