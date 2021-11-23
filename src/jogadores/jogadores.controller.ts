@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Query } from '@nestjs/common';
 import { CriarJogadorDTO } from './dtos/criar-jogador.dto';
 import { JogadorInterface } from './interfaces/jogador.interface';
 import { JogadoresService } from './jogadores.service';
@@ -13,7 +13,18 @@ export class JogadoresController {
   }
 
   @Get()
-  consultarJogadores(): JogadorInterface[] {
-    return this.jogadoresService.consultarTodosJogadores();
+  consultarJogadores(
+    @Query('email') email: string,
+  ): JogadorInterface[] | JogadorInterface {
+    if (email) {
+      return this.jogadoresService.consultarJogadorPorEmail(email);
+    } else {
+      return this.jogadoresService.consultarTodosJogadores();
+    }
+  }
+
+  @Delete()
+  deletarJogador(@Query('email') email: string): JogadorInterface {
+    return this.jogadoresService.deletarJogadorPorEmail(email);
   }
 }
