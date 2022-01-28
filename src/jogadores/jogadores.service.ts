@@ -9,12 +9,11 @@ export class JogadoresService {
   private readonly logger = new Logger();
 
   constructor(
-    @InjectModel('Jogador')
-    private readonly jogadorModel: Model<Jogador>,
+    @InjectModel('Jogador') private readonly jogadorModel: Model<Jogador>,
   ) {}
 
-  async criarAtualizarJogador(jogadorDto: CriarJogadorDTO): Promise<void> {
-    const { email } = jogadorDto;
+  async criarAtualizarJogador(criaJogadorDTO: CriarJogadorDTO): Promise<void> {
+    const { email } = criaJogadorDTO;
 
     // const indiceJogadorExistente = this.jogadores.findIndex(
     //   (jogador) => jogador.email === email,
@@ -27,9 +26,9 @@ export class JogadoresService {
       .exec();
 
     if (jogadorEncontrado) {
-      this.atualizar(jogadorEncontrado, jogadorDto);
+      this.atualizar(criaJogadorDTO);
     } else {
-      this.criar(jogadorDto);
+      this.criar(criaJogadorDTO);
     }
   }
 
@@ -96,19 +95,18 @@ export class JogadoresService {
   }
 
   // private atualizar(criarJogadorDto: CriarJogadorDTO, index: number): void {
-  private async atualizar(
-    criarJogadorDto: Jogador,
-    atualizarJogadorDTO: CriarJogadorDTO,
-  ): Promise<Jogador> {
+  private async atualizar(criarJogadorDto: CriarJogadorDTO): Promise<Jogador> {
     const { email } = criarJogadorDto;
-    return await this.jogadorModel.findOneAndUpdate(
-      {
-        email,
-      },
-      {
-        $set: criarJogadorDto,
-      },
-    );
+    return await this.jogadorModel
+      .findOneAndUpdate(
+        {
+          email,
+        },
+        {
+          $set: criarJogadorDto,
+        },
+      )
+      .exec();
 
     // const {
     //   _id,
