@@ -1,97 +1,135 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CriarJogadorDTO } from './dtos/criar-jogador.dto';
-import { JogadorInterface } from './interfaces/jogador.interface';
-import { v1 as uuid } from 'uuid';
+import { Jogador } from './interfaces/jogador.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class JogadoresService {
   private readonly logger = new Logger();
 
-  private jogadores: JogadorInterface[] = [];
+  constructor(
+    @InjectModel('Jogador')
+    private readonly jogadorModel: Model<Jogador>,
+  ) {}
 
-  criarAtualizarJogador(jogadorDto: CriarJogadorDTO): void {
+  async criarAtualizarJogador(jogadorDto: CriarJogadorDTO): Promise<void> {
     const { email } = jogadorDto;
 
-    const indiceJogadorExistente = this.jogadores.findIndex(
-      (jogador) => jogador.email === email,
-    );
+    // const indiceJogadorExistente = this.jogadores.findIndex(
+    //   (jogador) => jogador.email === email,
+    // );
 
-    if (indiceJogadorExistente >= 0) {
-      this.atualizar(jogadorDto, indiceJogadorExistente);
+    const jogadorEncontrado = await this.jogadorModel
+      .findOne({
+        email,
+      })
+      .exec();
+
+    if (jogadorEncontrado) {
+      this.atualizar(jogadorEncontrado, jogadorDto);
     } else {
       this.criar(jogadorDto);
     }
   }
 
-  consultarTodosJogadores(): JogadorInterface[] {
-    return this.jogadores;
+  async consultarTodosJogadores(): Promise<Jogador[]> {
+    // return this.jogadores;
+
+    return await this.jogadorModel.find().exec();
   }
 
-  consultarJogadorPorEmail(email: string): JogadorInterface {
-    const jogador = this.jogadores.find((jogador) => jogador.email === email);
+  async consultarJogadorPorEmail(email: string): Promise<Jogador> {
+    const jogadorEncontrado = await this.jogadorModel
+      .findOne({
+        email,
+      })
+      .exec();
 
-    if (!jogador) {
+    if (!jogadorEncontrado) {
       throw new NotFoundException(`Jogador com email ${email} não encontrado`);
     }
 
-    return jogador;
+    return jogadorEncontrado;
+    // const jogador = this.jogadores.find((jogador) => jogador.email === email);
+
+    // if (!jogador) {
+    //   throw new NotFoundException(`Jogador com email ${email} não encontrado`);
+    // }
+
+    // return jogador;
   }
 
-  deletarJogadorPorEmail(email: string): JogadorInterface {
-    const indiceDoJogador = this.jogadores.findIndex(
-      (jogador) => jogador.email === email,
+  async deletarJogadorPorEmail(email: string): Promise<any> {
+    // const indiceDoJogador = this.jogadores.findIndex(
+    //   (jogador) => jogador.email === email,
+    // );
+
+    // if (indiceDoJogador < 0) {
+    //   throw new NotFoundException(`Jogador com email ${email} não encontrado`);
+    // }
+
+    // const jogador = this.jogadores[indiceDoJogador];
+
+    // this.jogadores.splice(indiceDoJogador, 1);
+
+    // return jogador;
+
+    return await this.jogadorModel.remove({ email }).exec();
+  }
+
+  private async criar(criaJogadorDto: CriarJogadorDTO): Promise<Jogador> {
+    const jogadorCriado = new this.jogadorModel(criaJogadorDto);
+    return await jogadorCriado.save();
+
+    // const { nome, email, telefoneCelular } = criaJogadorDto;
+    // const jogador: Jogador = {
+    //   email,
+    //   nome,
+    //   telefoneCelular,
+    //   ranking: 'A',
+    //   posicaoRanking: 1,
+    //   urlFotoJogador: 'www.google.com.br/foto123.jpg',
+    // };
+    // this.jogadores.push(jogador);
+    // this.logger.log(`jogador: ${JSON.stringify(jogador)}`);
+  }
+
+  // private atualizar(criarJogadorDto: CriarJogadorDTO, index: number): void {
+  private async atualizar(
+    criarJogadorDto: Jogador,
+    atualizarJogadorDTO: CriarJogadorDTO,
+  ): Promise<Jogador> {
+    const { email } = criarJogadorDto;
+    return await this.jogadorModel.findOneAndUpdate(
+      {
+        email,
+      },
+      {
+        $set: criarJogadorDto,
+      },
     );
 
-    if (indiceDoJogador < 0) {
-      throw new NotFoundException(`Jogador com email ${email} não encontrado`);
-    }
+    // const {
+    //   _id,
+    //   email,
+    //   telefoneCelular,
+    //   posicaoRanking,
+    //   ranking,
+    //   urlFotoJogador,
+    // } = this.jogadores[index];
+    // ///Só vai atualizar o nome
+    // const { nome } = criarJogadorDto;
+    // this.jogadores[index] = {
+    //   _id,
+    //   email,
+    //   nome,
+    //   posicaoRanking,
+    //   ranking,
+    //   telefoneCelular,
+    //   urlFotoJogador,
+    // };
 
-    const jogador = this.jogadores[indiceDoJogador];
-
-    this.jogadores.splice(indiceDoJogador, 1);
-
-    return jogador;
-  }
-
-  private criar(criaJogadorDto: CriarJogadorDTO): void {
-    const { nome, email, telefoneCelular } = criaJogadorDto;
-
-    const jogador: JogadorInterface = {
-      _id: uuid(),
-      email,
-      nome,
-      telefoneCelular,
-      ranking: 'A',
-      posicaoRanking: 1,
-      urlFotoJogador: 'www.google.com.br/foto123.jpg',
-    };
-
-    this.jogadores.push(jogador);
-
-    this.logger.log(`jogador: ${JSON.stringify(jogador)}`);
-  }
-
-  private atualizar(criarJogadorDto: CriarJogadorDTO, index: number): void {
-    const {
-      _id,
-      email,
-      telefoneCelular,
-      posicaoRanking,
-      ranking,
-      urlFotoJogador,
-    } = this.jogadores[index];
-
-    ///Só vai atualizar o nome
-    const { nome } = criarJogadorDto;
-
-    this.jogadores[index] = {
-      _id,
-      email,
-      nome,
-      posicaoRanking,
-      ranking,
-      telefoneCelular,
-      urlFotoJogador,
-    };
+    // atualizarJogadorDTO.nome = nome;
   }
 }
