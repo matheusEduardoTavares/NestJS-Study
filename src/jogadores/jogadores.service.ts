@@ -8,6 +8,7 @@ import { CriarJogadorDTO } from './dtos/criar-jogador.dto';
 import { Jogador } from './interfaces/jogador.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { AtualizarJogadorDTO } from './dtos/atualizar-jogador.dto';
 
 @Injectable()
 export class JogadoresService {
@@ -58,7 +59,7 @@ export class JogadoresService {
 
   async atualizarJogador(
     _id: string,
-    criarJogadorDTO: CriarJogadorDTO,
+    atualizarJogadorDTO: AtualizarJogadorDTO,
   ): Promise<void> {
     const jogadorEncontrado = await this.jogadorModel
       .findOne({
@@ -76,7 +77,7 @@ export class JogadoresService {
           _id,
         },
         {
-          $set: criarJogadorDTO,
+          $set: atualizarJogadorDTO,
         },
       )
       .exec();
@@ -88,15 +89,15 @@ export class JogadoresService {
     return await this.jogadorModel.find().exec();
   }
 
-  async consultarJogadorPorEmail(email: string): Promise<Jogador> {
+  async consultarJogadorPeloID(_id: string): Promise<Jogador> {
     const jogadorEncontrado = await this.jogadorModel
       .findOne({
-        email,
+        _id,
       })
       .exec();
 
     if (!jogadorEncontrado) {
-      throw new NotFoundException(`Jogador com email ${email} não encontrado`);
+      throw new NotFoundException(`Jogador com ID ${_id} não encontrado`);
     }
 
     return jogadorEncontrado;
@@ -109,6 +110,7 @@ export class JogadoresService {
     // return jogador;
   }
 
+  /*
   async deletarJogadorPorEmail(email: string): Promise<any> {
     // const indiceDoJogador = this.jogadores.findIndex(
     //   (jogador) => jogador.email === email,
@@ -125,6 +127,21 @@ export class JogadoresService {
     // return jogador;
 
     return await this.jogadorModel.deleteOne({ email }).exec();
+  }
+  */
+
+  async deletarJogador(_id: string): Promise<any> {
+    const jogadorEncontrado = await this.jogadorModel.findOne({ _id }).exec();
+
+    if (!jogadorEncontrado) {
+      throw new NotFoundException(`Jogador com id ${_id} não encontrado`);
+    }
+
+    return await this.jogadorModel
+      .deleteOne({
+        _id,
+      })
+      .exec();
   }
 
   /*
