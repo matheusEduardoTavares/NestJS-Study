@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JogadoresModule } from './jogadores/jogadores.module';
 import { ConfigModule } from '@nestjs/config';
+import { CategoriasModule } from './categorias/categorias.module';
 
 ///npm install @nestjs/mongoose mongoose
 ///npm install -D @types/mongoose
@@ -17,6 +18,7 @@ import { ConfigModule } from '@nestjs/config';
       // useUnifiedTopology: true,
       // useFindAndModify: false,
     }),
+    CategoriasModule,
   ],
   controllers: [],
   providers: [],
