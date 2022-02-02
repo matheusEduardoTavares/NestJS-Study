@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   UsePipes,
   ValidationPipe,
@@ -19,5 +21,18 @@ export class CategoriasController {
     @Body() criarCategoriaDTO: CriarCategoriaDTO,
   ): Promise<Categoria> {
     return await this.categoriasService.criarCategoria(criarCategoriaDTO);
+  }
+
+  @Get()
+  async consultarCategorias(): Promise<Array<Categoria>> {
+    return await this.categoriasService.consultarCategorias();
+  }
+
+  @Get('/:categoria')
+  async consultarCategoriaPeloID(
+    @Param('categoria')
+    categoria: string,
+  ): Promise<Categoria> {
+    return await this.categoriasService.consultarCategoriaPeloID(categoria);
   }
 }
