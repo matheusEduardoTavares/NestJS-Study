@@ -3,6 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { JogadoresModule } from './jogadores/jogadores.module';
 import { ConfigModule } from '@nestjs/config';
 import { CategoriasModule } from './categorias/categorias.module';
+import { DesafiosModule } from './desafios/desafios.module';
+import { PartidasModule } from './partidas/partidas.module';
 
 ///npm install @nestjs/mongoose mongoose
 ///npm install -D @types/mongoose
@@ -19,6 +21,8 @@ import { CategoriasModule } from './categorias/categorias.module';
       // useFindAndModify: false,
     }),
     CategoriasModule,
+    DesafiosModule,
+    PartidasModule,
   ],
   controllers: [],
   providers: [],
